@@ -44,7 +44,7 @@ public class GameEngine implements KeyListener, GameReporter{
 	}
 	
 	private void generateEnemy(){
-		Enemy e = new Enemy((int)(Math.random()*390), 30);
+		Enemy e = new Enemy((int)(Math.random()*390), 50);
 		gp.sprites.add(e);
 		enemies.add(e);
 	}
@@ -62,7 +62,7 @@ public class GameEngine implements KeyListener, GameReporter{
 			if(!e.isAlive()){
 				e_iter.remove();
 				gp.sprites.remove(e);
-				score += 100;
+				score += 50;
 			}
 		}
 		

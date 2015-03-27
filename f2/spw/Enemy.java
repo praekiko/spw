@@ -8,11 +8,14 @@ public class Enemy extends Sprite{
 	public static final int Y_TO_FADE = 400;
 	public static final int Y_TO_DIE = 600;
 	
-	private int step = 12;
+	private int step = 11;
 	private boolean alive = true;
+
+	Color enemyColor = new Color (147, 250, 247);
 	
 	public Enemy(int x, int y) {
-		super(x, y, 5, 10);
+		//super(x, y, 5, 10);
+		super(x, y, 10, 20);
 		
 	}
 
@@ -24,9 +27,9 @@ public class Enemy extends Sprite{
 			g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 
 					(float)(Y_TO_DIE - y)/(Y_TO_DIE - Y_TO_FADE)));
 		}
-		g.setColor(Color.ORANGE);
-		g.fillRect(x, y, width, height);
-		
+		g.setColor(enemyColor);
+		//g.fillRect(x, y, width, height);
+		g.fillRoundRect(x, y, width, height, 5, 5);
 	}
 
 	public void proceed(){

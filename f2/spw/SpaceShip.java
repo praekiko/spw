@@ -6,6 +6,8 @@ import java.awt.Graphics2D;
 public class SpaceShip extends Sprite{
 
 	int step = 8;
+
+	Color buttonColor = new Color (255, 153, 153);
 	
 	public SpaceShip(int x, int y, int width, int height) {
 		super(x, y, width, height);
@@ -14,7 +16,7 @@ public class SpaceShip extends Sprite{
 
 	@Override
 	public void draw(Graphics2D g) {
-		g.setColor(Color.GREEN);
+		g.setColor(buttonColor);
 		g.fillRect(x, y, width, height);
 		
 	}
