@@ -21,6 +21,9 @@ public class GameEngine implements KeyListener, GameReporter{
 	
 	private long score = 0;
 	private double difficulty = 0.1;
+
+	// heart count
+	private int heartScore = 25;
 	
 	public GameEngine(GamePanel gp, SpaceShip v) {
 		this.gp = gp;
@@ -72,9 +75,19 @@ public class GameEngine implements KeyListener, GameReporter{
 		Rectangle2D.Double er;
 		for(Enemy e : enemies){
 			er = e.getRectangle();
+			// if(er.intersects(vr)){
+			// 	die();
+			// 	return;
+			// }
 			if(er.intersects(vr)){
-				die();
-				return;
+				heartScore--;
+				// score -= 10;
+				// gp.updateHeartUI(this);
+				System.out.println(heartScore + " ");
+				if(heartScore < 4){
+					die();
+					return;
+				}
 			}
 		}
 	}
@@ -99,6 +112,11 @@ public class GameEngine implements KeyListener, GameReporter{
 
 	public long getScore(){
 		return score;
+		// return heartScore;
+	}
+
+	public long getHeartScore(){
+		return heartScore / 5;
 	}
 	
 	@Override
