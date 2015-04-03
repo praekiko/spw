@@ -4,17 +4,17 @@ import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Graphics2D;
 
-public class Enemy extends Sprite{
+public class ShootEnemy extends Sprite{
 	public static final int Y_TO_FADE = 400;
 	public static final int Y_TO_DIE = 600;
 	
 	private int step = 11;
 	private boolean alive = true;
 
-	Color enemyColor = new Color (110, 218, 83);
+	Color enemyColor = new Color (76, 153, 0);
 	
-	public Enemy(int x, int y) {
-		super(x, y, 10, 20);
+	public ShootEnemy(int x, int y) {
+		super(x, y, 20, 20);
 		
 	}
 
@@ -27,7 +27,6 @@ public class Enemy extends Sprite{
 					(float)(Y_TO_DIE - y)/(Y_TO_DIE - Y_TO_FADE)));
 		}
 		g.setColor(enemyColor);
-		//g.fillRect(x, y, width, height);
 		g.fillRoundRect(x, y, width, height, 5, 5);
 	}
 
