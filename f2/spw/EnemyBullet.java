@@ -4,11 +4,12 @@ import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Graphics2D;
 
+// Bullet for ShootEnemy
 public class EnemyBullet extends Sprite{
 	public static final int Y_TO_FADE = 400;
 	public static final int Y_TO_DIE = 600;
 	
-	private int step = 11;
+	private int step = 15;
 	private boolean alive = true;
 
 	Color enemyColor = new Color (51, 102, 0);
@@ -25,7 +26,7 @@ public class EnemyBullet extends Sprite{
 	}
 
 	public void proceed(){
-		y += 3 * step;
+		y += 2 * step;
 		if(y > Y_TO_DIE){
 			alive = false;
 		}

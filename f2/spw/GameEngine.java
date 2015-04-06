@@ -17,6 +17,10 @@ public class GameEngine implements KeyListener, GameReporter{
 	private ArrayList<Enemy> enemies = new ArrayList<Enemy>();	
 	private ArrayList<ShootEnemy> shootEnemies = new ArrayList<ShootEnemy>();	// ShoootEnemy
 	private ArrayList<EnemyBullet> enemyBullets = new ArrayList<EnemyBullet>(); // EnemyBullet
+	private ArrayList<ToBiggerEnemy> toBiggerEnemies = new ArrayList<ToBiggerEnemy>(); // ToBiggerEnemy
+	private ArrayList<ToSmallerEnemy> toSmallerEnemies = new ArrayList<ToSmallerEnemy>(); // ToSmallerEnemy
+
+
 	private SpaceShip v;	
 	
 	private Timer timer;
@@ -37,8 +41,9 @@ public class GameEngine implements KeyListener, GameReporter{
 			
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				enemyProcess();
+				enemyProcess(); // original process
 				shootEnemyProcess();
+				itemProcess();
 			}
 		});
 		timer.setRepeats(true);
@@ -61,13 +66,26 @@ public class GameEngine implements KeyListener, GameReporter{
 		gp.sprites.add(se);
 		shootEnemies.add(se);
 	}
-	// Generate Rnrmy Bullet
+	// Generate Enemy Bullet
 	private void generateEnemyBullet(int x, int y){
 		EnemyBullet em = new EnemyBullet(x, y);
 		gp.sprites.add(em);
 		enemyBullets.add(em);
 	}
+	// Generate To Bigger Bar Enemy
+	private void generateToBiggerEnemy(){
+		ToBiggerEnemy tbe = new ToBiggerEnemy((int)(Math.random()*390), 30);
+		gp.sprites.add(tbe);
+		toBiggerEnemies.add(tbe);
+	}
+	// Generate To Smaller Bar Enemy
+	private void generateToSmallerEnemy(){
+		ToSmallerEnemy tse = new ToSmallerEnemy((int)(Math.random()*390), 30);
+		gp.sprites.add(tse);
+		toSmallerEnemies.add(tse);
+	}
 	
+	// Original Process
 	private void enemyProcess(){
 		if(Math.random() < difficulty){
 			generateEnemy();
@@ -109,7 +127,7 @@ public class GameEngine implements KeyListener, GameReporter{
 
 	// For ShootEnemy
 	private void shootEnemyProcess(){		
-		if(Math.random() < 0.025){
+		if(Math.random() < difficulty / 2){
 			generateShootEnemy();
 		}
 		
@@ -163,7 +181,73 @@ public class GameEngine implements KeyListener, GameReporter{
 		for(EnemyBullet e : enemyBullets){
 			em = e.getRectangle();
 			if(em.intersects(vrOfem)){
-				score -= 10;		
+				elementOfEnemyCount++;
+				if(elementOfEnemyCount >= 4){
+					score -= 50;	
+					// Show Damage
+					gp.showDamage(this);
+					elementOfEnemyCount = 0;
+				}					
+					
+			}
+		}
+	}
+
+	// For Item
+	private void itemProcess(){		
+		if(Math.random() < difficulty / 5){
+			generateToBiggerEnemy();
+		}
+		if(Math.random() < difficulty / 5){
+			generateToSmallerEnemy();
+		}
+
+		// To Bigger remove
+		Iterator<ToBiggerEnemy> tbe_iter = toBiggerEnemies.iterator();
+		while (tbe_iter.hasNext()) {
+			ToBiggerEnemy tb = tbe_iter.next();
+			tb.proceed();
+			if (!tb.isAlive()) {
+				tbe_iter.remove();
+				gp.sprites.remove(tb);
+			}
+		}
+
+		Iterator<ToSmallerEnemy> tse_iter = toSmallerEnemies.iterator();
+		while (tse_iter.hasNext()) {
+			ToSmallerEnemy ts = tse_iter.next();
+			ts.proceed();
+			if (!ts.isAlive()) {
+				tse_iter.remove();
+				gp.sprites.remove(ts);
+			}
+		}
+		
+		gp.updateGameUI(this);
+		
+		// To Bigger when intersect -> update size of spaceship
+		Rectangle2D.Double vrOftbe = v.getRectangle();
+		Rectangle2D.Double tbe;
+		for(ToBiggerEnemy tb : toBiggerEnemies){
+			tbe = tb.getRectangle();
+			if(tbe.intersects(vrOftbe)){
+				// update size of spaceship
+				elementOfEnemyCount++;
+				if(elementOfEnemyCount >= 4){
+					v.increaseSize();
+					elementOfEnemyCount = 0;
+				}				
+			}
+		}
+
+		// To Smaller when intersect
+		Rectangle2D.Double vrOftse = v.getRectangle();
+		Rectangle2D.Double tse;
+		for(ToSmallerEnemy ts : toSmallerEnemies){
+			tse = ts.getRectangle();
+			if(tse.intersects(vrOftse)){
+				// update size of spaceship
+				v.resetSize();
 			}
 		}
 	}
@@ -174,13 +258,19 @@ public class GameEngine implements KeyListener, GameReporter{
 	
 	void controlVehicle(KeyEvent e) {
 		switch (e.getKeyCode()) {
-		case KeyEvent.VK_LEFT:
-			v.move(-1);
-			break;
-		case KeyEvent.VK_RIGHT:
-			v.move(1);
+		case KeyEvent.VK_A:
+			v.moveX(-1);
 			break;
 		case KeyEvent.VK_D:
+			v.moveX(1);
+			break;
+		case KeyEvent.VK_W:
+			v.moveY(-1);
+			break;
+		case KeyEvent.VK_S:
+			v.moveY(1);
+			break;
+		case KeyEvent.VK_UP:
 			difficulty += 0.1;
 			break;
 		}
@@ -192,6 +282,19 @@ public class GameEngine implements KeyListener, GameReporter{
 
 	public int getHeartScore(){
 		return heartScore;
+	}
+
+	// get Current X,Y axis of spaceship
+	public int getCurrentXOfSS(){
+		return v.x;
+	}
+
+	public int getCurrentYOfSS(){
+		return v.y;
+	}
+
+	public int getDamage(){
+		return 10;
 	}
 	
 	@Override
