@@ -10,8 +10,7 @@ public class SpaceShip extends Sprite{
 	Color buttonColor = new Color (255, 153, 153);
 	
 	public SpaceShip(int x, int y, int width, int height) {
-		super(x, y, width, height);
-		
+		super(x, y, width, height);		
 	}
 
 	int resetWidth = width;
@@ -35,12 +34,12 @@ public class SpaceShip extends Sprite{
 		y += (step * direction);
 		if(y < 0)
 			y = 0;
-		if(y > 600 - width)
-			y = 600 - width;
+		if(y > 550 - width)
+			y = 550 - width;
 	}
 
 	public void increaseSize(){
-		width += 50;
+		width += 20;
 	}
 
 	public void resetSize(){

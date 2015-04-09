@@ -25,6 +25,7 @@ public class GamePanel extends JPanel {
 	Color backgroundColor = new Color (160, 160, 160);
 
 	private Image heart;
+	private Image needle;
 
 	public GamePanel() {
 		bi = new BufferedImage(400, 600, BufferedImage.TYPE_INT_ARGB);
@@ -36,8 +37,11 @@ public class GamePanel extends JPanel {
 		big2.setBackground(backgroundColor);
 
 		try {
-			File sourceimage = new File("f2/spw/image/heart.gif");
+			File sourceimage = new File("f2/spw/image/smallredheart.png");
 			heart = ImageIO.read(sourceimage);
+
+			File sourceimage2 = new File("f2/spw/image/thpinkneedle.gif");
+			needle = ImageIO.read(sourceimage2);
 		}
 		catch (IOException e) {
          	e.printStackTrace();
@@ -48,10 +52,25 @@ public class GamePanel extends JPanel {
 		big.clearRect(0, 0, 400, 600);
 		// heart image
 		big.drawImage(heart, 325, 9, null);
+		// big.drawImage(needle, 10, 5, null);
 		
 		big.setColor(Color.WHITE);		
 		big.drawString(String.format("%08d", reporter.getScore()), 170, 20);
 		big.drawString(String.format("%01d", reporter.getHeartScore()), 350, 20);
+
+		if(reporter.getNumOfNeedle() == 1) {
+			big.drawImage(needle, 10, 5, null);
+		}
+		else if (reporter.getNumOfNeedle() == 2) {
+			big.drawImage(needle, 10, 5, null);
+			big.drawImage(needle, 30, 5, null);
+		}
+		else if (reporter.getNumOfNeedle() == 3) {
+			big.drawImage(needle, 10, 5, null);
+			big.drawImage(needle, 30, 5, null);
+			big.drawImage(needle, 50, 5, null);
+		}
+		// big.drawString(String.format("%01d", reporter.getNumOfNeedle()), 50, 20);
 		
 		for(Sprite s : sprites){
 			s.draw(big);
@@ -63,15 +82,16 @@ public class GamePanel extends JPanel {
 
 
 	public void showDamage(GameReporter reporter){
-		System.out.println("showDamage");
+		// System.out.println("showDamage");
 		// System.out.println(reporter.getDamage() + " " + reporter.getCurrentXOfSS() + " " + reporter.getCurrentYOfSS());
-		// big2.clearRect(0, 0, 400, 600);
 		
+		
+		big2.clearRect(reporter.getCurrentXOfSS() - 10, reporter.getCurrentYOfSS() - 10, 400, 10);
 		big2.setColor(Color.WHITE);		
 		big2.drawString(String.format("%02d", reporter.getDamage()), reporter.getCurrentXOfSS(), reporter.getCurrentYOfSS());
-
 		
 		repaint();
+		
 	}
 
 	@Override
