@@ -43,4 +43,5 @@ public class Enemy extends Sprite{
 	public void setToDie(){
 		alive = false;
 	}
+
 }

@@ -4,17 +4,17 @@ import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Graphics2D;
 
-// Bullet for SpaceShip
-public class SpaceShipBullet extends Sprite{
+// Bullet for ShootEnemy
+public class BulletEnemy extends Sprite{
 	public static final int Y_TO_FADE = 400;
-	public static final int Y_TO_DIE = 0;
+	public static final int Y_TO_DIE = 600;
 	
-	private int step = 30;
-	private boolean alive = true;
+	private int step = 15;
+	protected boolean alive = true;
 
-	Color enemyColor = new Color (255, 204, 204);
+	Color enemyColor = new Color (51, 102, 0);
 	
-	public SpaceShipBullet(int x, int y) {
+	public BulletEnemy(int x, int y) {
 		super(x, y, 5, 10);
 		
 	}
@@ -26,8 +26,8 @@ public class SpaceShipBullet extends Sprite{
 	}
 
 	public void proceed(){
-		y -= step;
-		if(y < Y_TO_DIE){
+		y += 2 * step;
+		if(y > Y_TO_DIE){
 			alive = false;
 		}
 	}

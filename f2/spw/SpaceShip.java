@@ -34,8 +34,8 @@ public class SpaceShip extends Sprite{
 		y += (step * direction);
 		if(y < 0)
 			y = 0;
-		if(y > 550 - width)
-			y = 550 - width;
+		if(y > 580 - width)
+			y = 580 - width;
 	}
 
 	public void increaseSize(){

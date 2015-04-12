@@ -70,7 +70,6 @@ public class GamePanel extends JPanel {
 			big.drawImage(needle, 30, 5, null);
 			big.drawImage(needle, 50, 5, null);
 		}
-		// big.drawString(String.format("%01d", reporter.getNumOfNeedle()), 50, 20);
 		
 		for(Sprite s : sprites){
 			s.draw(big);
@@ -80,18 +79,14 @@ public class GamePanel extends JPanel {
 	}
 
 
-
-	public void showDamage(GameReporter reporter){
-		// System.out.println("showDamage");
-		// System.out.println(reporter.getDamage() + " " + reporter.getCurrentXOfSS() + " " + reporter.getCurrentYOfSS());
-		
+	// must set time -> howlong it will appear!!
+	public void showDamage(GameReporter reporter, int howLong){
 		
 		big2.clearRect(reporter.getCurrentXOfSS() - 10, reporter.getCurrentYOfSS() - 10, 400, 10);
 		big2.setColor(Color.WHITE);		
 		big2.drawString(String.format("%02d", reporter.getDamage()), reporter.getCurrentXOfSS(), reporter.getCurrentYOfSS());
 		
 		repaint();
-		
 	}
 
 	@Override

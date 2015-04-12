@@ -4,29 +4,27 @@ import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Graphics2D;
 
-// Bullet for ShootEnemy
-public class EnemyBullet extends Sprite{
+public abstract class Item extends Sprite{
 	public static final int Y_TO_FADE = 400;
 	public static final int Y_TO_DIE = 600;
 	
-	private int step = 15;
-	protected boolean alive = true;
+	protected int step = 11; 
+	protected boolean alive = true; // when intersect in GameEngine -> they can modify
 
-	Color enemyColor = new Color (51, 102, 0);
+	Color itemColor = new Color (110, 218, 83);
 	
-	public EnemyBullet(int x, int y) {
-		super(x, y, 5, 10);
-		
+	public Item(int x, int y) {
+		super(x, y, 10, 20);		
 	}
 
 	@Override
 	public void draw(Graphics2D g) {
-		g.setColor(enemyColor);
-		g.fillRect(x, y, width, height);
+		g.setColor(itemColor);
+		g.fillRoundRect(x, y, width, height, 5, 5);
 	}
 
 	public void proceed(){
-		y += 2 * step;
+		y += step;
 		if(y > Y_TO_DIE){
 			alive = false;
 		}
@@ -39,4 +37,7 @@ public class EnemyBullet extends Sprite{
 	public void setToDie(){
 		alive = false;
 	}
+
+	public abstract void doWhenCollect(GameEngine ge);
+
 }

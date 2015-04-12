@@ -3,10 +3,10 @@ package f2.spw;
 import java.awt.Color;
 import java.awt.Graphics2D;
 
-public class ShootEnemy extends Enemy{
+public class EnemyShootBody extends Enemy{
 	Color enemyColor = new Color (76, 153, 0);
 	
-	public ShootEnemy(int x, int y) {
+	public EnemyShootBody(int x, int y) {
 		super(x, y);
 	}
 

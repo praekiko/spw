@@ -15,16 +15,12 @@ public class GameEngine implements KeyListener, GameReporter{
 	GamePanel gp;
 		
 	private ArrayList<Enemy> enemies = new ArrayList<Enemy>();	
-	private ArrayList<ShootEnemy> shootEnemies = new ArrayList<ShootEnemy>();	// ShoootEnemy
-	private ArrayList<EnemyBullet> enemyBullets = new ArrayList<EnemyBullet>(); // EnemyBullet
-	private ArrayList<ToBiggerEnemy> toBiggerEnemies = new ArrayList<ToBiggerEnemy>(); // ToBiggerEnemy
-	private ArrayList<ToSmallerEnemy> toSmallerEnemies = new ArrayList<ToSmallerEnemy>(); // ToSmallerEnemy
-	private ArrayList<NeedleEnemy> needleEnemies = new ArrayList<NeedleEnemy>(); // NeedleEnemy
-	private ArrayList<SpaceShipBullet> spaceshipBullets = new ArrayList<SpaceShipBullet>(); // SpaceShipBullet
+	private ArrayList<EnemyShootBody> shootEnemies = new ArrayList<EnemyShootBody>();	// EnemyShootBody
+	private ArrayList<BulletEnemy> enemyBullets = new ArrayList<BulletEnemy>(); // BulletEnemy
+	private ArrayList<BulletSpaceShip> spaceshipBullets = new ArrayList<BulletSpaceShip>(); // BulletSpaceShip
+	private ArrayList<Item> items = new ArrayList<Item>(); // Items
 
-	private boolean generateBulletForNeedle = false;
-
-	private SpaceShip v;	
+	protected SpaceShip v;	
 	
 	private Timer timer;
 	
@@ -32,7 +28,9 @@ public class GameEngine implements KeyListener, GameReporter{
 	private double difficulty = 0.05;
 
 	private int heartScore = 5; 	// heart count
-	private int numOfNeedle = 0;
+
+	protected boolean generateBulletForNeedle = false;
+	protected int numOfNeedle = 0;
 	
 	public GameEngine(GamePanel gp, SpaceShip v) {
 		this.gp = gp;
@@ -45,8 +43,9 @@ public class GameEngine implements KeyListener, GameReporter{
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				enemyProcess(); // original process
-				shootEnemyProcess();
+				enemyShootBodyProcess();
 				itemProcess();
+				bulletProcess();
 			}
 		});
 		timer.setRepeats(true);
@@ -57,40 +56,53 @@ public class GameEngine implements KeyListener, GameReporter{
 	}
 	
 	// For Enemy
-	private void generateEnemy(){
+	private void generateEnemy(){		
 		Enemy e = new Enemy((int)(Math.random()*390), 30);
 		gp.sprites.add(e);
 		enemies.add(e);
 	}
-	// To Generate ShootEnemy
-	private void generateShootEnemy(){
-		ShootEnemy se = new ShootEnemy((int)(Math.random()*390), 30);
+	// To Generate EnemyShootBody
+	private void generateEnemyShootBody(){
+		EnemyShootBody se = new EnemyShootBody((int)(Math.random()*390), 30);
 		gp.sprites.add(se);
 		shootEnemies.add(se);
 	}
 	// Generate Enemy Bullet
-	private void generateEnemyBullet(int x, int y){
-		EnemyBullet em = new EnemyBullet(x, y);
+	private void generateBulletEnemy(int x, int y){
+		BulletEnemy em = new BulletEnemy(x, y);
 		gp.sprites.add(em);
 		enemyBullets.add(em);
 	}
-	// Generate To Bigger Bar Enemy
-	private void generateToBiggerEnemy(){
-		ToBiggerEnemy tbe = new ToBiggerEnemy((int)(Math.random()*390), 30);
-		gp.sprites.add(tbe);
-		toBiggerEnemies.add(tbe);
-	}
-	// Generate To Smaller Bar Enemy
-	private void generateToSmallerEnemy(){
-		ToSmallerEnemy tse = new ToSmallerEnemy((int)(Math.random()*390), 30);
-		gp.sprites.add(tse);
-		toSmallerEnemies.add(tse);
-	}
-	// Generate To Needle Enemy
-	private void generateNeedleEnemy(){
-		NeedleEnemy ne = new NeedleEnemy((int)(Math.random()*390), 30);
-		gp.sprites.add(ne);
-		needleEnemies.add(ne);
+
+	// Generate Items all in one
+	private void generateItem(){
+		int numOfItems = 3;
+		int randomCase = (int)(Math.random() * (numOfItems + 1));
+		switch (randomCase) {
+			case 1:
+			{
+				ItemToBigger itb = new ItemToBigger((int)(Math.random()*390), 30);
+				gp.sprites.add(itb);
+				items.add(itb);
+			}
+			break;
+			case 2:
+			{
+				ItemToSmaller its = new ItemToSmaller((int)(Math.random()*390), 30);
+				gp.sprites.add(its);
+				items.add(its);
+			}
+			break;
+			case 3:
+			{
+				ItemNeedle in = new ItemNeedle((int)(Math.random()*390), 30);
+				gp.sprites.add(in);
+				items.add(in);
+			}
+			break;
+		}
+
+		
 	}
 	
 	// Original Process
@@ -129,17 +141,17 @@ public class GameEngine implements KeyListener, GameReporter{
 		}
 	}
 
-	// For ShootEnemy
-	private void shootEnemyProcess(){		
+	// For EnemyShootBody
+	private void enemyShootBodyProcess(){		
 		if(Math.random() < difficulty / 2){
-			generateShootEnemy();
+			generateEnemyShootBody();
 		}
 		
-		Iterator<ShootEnemy> se_iter = shootEnemies.iterator();
+		Iterator<EnemyShootBody> se_iter = shootEnemies.iterator();
 		while(se_iter.hasNext()){
-			ShootEnemy se = se_iter.next();
+			EnemyShootBody se = se_iter.next();
 			se.proceed();
-			generateEnemyBullet(se.x + 7, se.y); // generate Enemy Bullet with each x,y of ShootEnemy
+			generateBulletEnemy(se.x + 7, se.y); // generate Enemy Bullet with each x,y of EnemyShootBody
 
 			if(!se.isAlive()){
 				se_iter.remove();
@@ -148,23 +160,13 @@ public class GameEngine implements KeyListener, GameReporter{
 			}
 
 		}
-
-		Iterator<EnemyBullet> b_iter = enemyBullets.iterator();
-		while (b_iter.hasNext()) {
-			EnemyBullet bl = b_iter.next();
-			bl.proceed();
-			if (!bl.isAlive()) {
-				b_iter.remove();
-				gp.sprites.remove(bl);
-			}
-		}
 		
 		gp.updateGameUI(this);
 		
-		// ShootEnemy Body when intersect
+		// EnemyShootBody Body when intersect
 		Rectangle2D.Double vrOfse = v.getRectangle();
 		Rectangle2D.Double se;
-		for(ShootEnemy s : shootEnemies){
+		for(EnemyShootBody s : shootEnemies){
 			se = s.getRectangle();
 			if(se.intersects(vrOfse)){		
 				heartScore--;	
@@ -177,66 +179,57 @@ public class GameEngine implements KeyListener, GameReporter{
 				}
 			}
 		}
-		// EnemyBullet when intersect
-		Rectangle2D.Double vrOfem = v.getRectangle();
-		Rectangle2D.Double em;
-		for(EnemyBullet e : enemyBullets){
-			em = e.getRectangle();
-			if(em.intersects(vrOfem)){
-				score -= 10;
-				e.setToDie();	
-				// Show Damage
-				//gp.showDamage(this);					
-			}
-		}
+		
 	}
 
-	// For Item
+	// For Items
 	private void itemProcess(){		
-		if(Math.random() < difficulty / 7){
-			generateToBiggerEnemy();
-		}
-		if(Math.random() < difficulty / 7){
-			generateToSmallerEnemy();
-		}
-		if(Math.random() < difficulty / 5){
-			generateNeedleEnemy();
+		if(Math.random() < difficulty){
+			generateItem();
 		}
 
-		// To Bigger remove
-		Iterator<ToBiggerEnemy> tbe_iter = toBiggerEnemies.iterator();
-		while (tbe_iter.hasNext()) {
-			ToBiggerEnemy tb = tbe_iter.next();
-			tb.proceed();
-			if (!tb.isAlive()) {
-				tbe_iter.remove();
-				gp.sprites.remove(tb);
+		// Items remove
+		Iterator<Item> it_iter = items.iterator();
+		while (it_iter.hasNext()) {
+			Item i = it_iter.next();
+			i.proceed();
+			if (!i.isAlive()) {
+				it_iter.remove();
+				gp.sprites.remove(i);
 			}
 		}
-		// To Smaller remove
-		Iterator<ToSmallerEnemy> tse_iter = toSmallerEnemies.iterator();
-		while (tse_iter.hasNext()) {
-			ToSmallerEnemy ts = tse_iter.next();
-			ts.proceed();
-			if (!ts.isAlive()) {
-				tse_iter.remove();
-				gp.sprites.remove(ts);
+
+		// Items when intersect
+		Rectangle2D.Double vrOfit = v.getRectangle();
+		Rectangle2D.Double it;
+		for(Item i : items){
+			it = i.getRectangle();
+			if(it.intersects(vrOfit)){
+				i.doWhenCollect(this);
+				i.setToDie();				
 			}
 		}
-		// Needle remove
-		Iterator<NeedleEnemy> ne_iter = needleEnemies.iterator();
-		while (ne_iter.hasNext()) {
-			NeedleEnemy n = ne_iter.next();
-			n.proceed();
-			if (!n.isAlive()) {
-				ne_iter.remove();
-				gp.sprites.remove(n);
+
+
+	}
+
+
+	private void bulletProcess(){
+		// Shooting Enemy Bullet
+		Iterator<BulletEnemy> b_iter = enemyBullets.iterator();
+		while (b_iter.hasNext()) {
+			BulletEnemy bl = b_iter.next();
+			bl.proceed();
+			if (!bl.isAlive()) {
+				b_iter.remove();
+				gp.sprites.remove(bl);
 			}
 		}
+
 		// SSBullet remove
-		Iterator<SpaceShipBullet> ssb_iter = spaceshipBullets.iterator();
+		Iterator<BulletSpaceShip> ssb_iter = spaceshipBullets.iterator();
 		while (ssb_iter.hasNext()) {
-			SpaceShipBullet sb = ssb_iter.next();
+			BulletSpaceShip sb = ssb_iter.next();
 			sb.proceed();
 			if (!sb.isAlive()) {
 				ssb_iter.remove();
@@ -245,56 +238,25 @@ public class GameEngine implements KeyListener, GameReporter{
 		}
 		
 		gp.updateGameUI(this);
-		
-		// To Bigger when intersect -> update size of spaceship
-		Rectangle2D.Double vrOftbe = v.getRectangle();
-		Rectangle2D.Double tbe;
-		for(ToBiggerEnemy tb : toBiggerEnemies){
-			tbe = tb.getRectangle();
-			if(tbe.intersects(vrOftbe)){
-				// update size of spaceship
-				v.increaseSize();
-				tb.setToDie();				
+
+		// BulletEnemy when intersect
+		Rectangle2D.Double vrOfem = v.getRectangle();
+		Rectangle2D.Double em;
+		for(BulletEnemy e : enemyBullets){
+			em = e.getRectangle();
+			if(em.intersects(vrOfem)){
+				score -= 10;
+				e.setToDie();	
+				// Show Damage
+				// gp.showDamage(this);					
 			}
 		}
 
-		// To Smaller when intersect
-		Rectangle2D.Double vrOftse = v.getRectangle();
-		Rectangle2D.Double tse;
-		for(ToSmallerEnemy ts : toSmallerEnemies){
-			tse = ts.getRectangle();
-			if(tse.intersects(vrOftse)){
-				// update size of spaceship
-				v.resetSize();
-				ts.setToDie();
-			}
-		}
-
-		
-		// Needle when intersect
-		Rectangle2D.Double vrOfne = v.getRectangle();
-		Rectangle2D.Double ne;
-		for(NeedleEnemy n : needleEnemies){
-			ne = n.getRectangle();
-			if(ne.intersects(vrOfne)){
-				// SS can shoot Bullet
-				generateBulletForNeedle = true;
-				if(numOfNeedle < 3){ 	// Max at 3
-					numOfNeedle++;
-				}
-				else {
-					numOfNeedle = 0;
-				}
-				System.out.println("Needle = " + numOfNeedle);
-				n.setToDie();
-			}
-		}
-
-		// SSBullet remove
+		// SSBullet intersect
 		Rectangle2D.Double vrOfe;
 		Rectangle2D.Double vrOfse;
 		Rectangle2D.Double ssb;
-		for(SpaceShipBullet sb : spaceshipBullets){
+		for(BulletSpaceShip sb : spaceshipBullets){
 			ssb = sb.getRectangle();
 
 			for(Enemy e : enemies){
@@ -306,27 +268,74 @@ public class GameEngine implements KeyListener, GameReporter{
 				}
 			}
 			
-			for(ShootEnemy se : shootEnemies){
+			for(EnemyShootBody se : shootEnemies){
 				vrOfse = se.getRectangle();
 				if(vrOfse.intersects(ssb)){
-					// remove that ShootEnemy
+					// remove that EnemyShootBody
 					se.setToDie();
 					score += 50;
 				}
 			}
 			
 		}
-
 	}
 
 	// Generate Bullet by intersect Needle Enemy
-	private void generateSpaceShipBullet(){
+	private void generateBulletSpaceShip(){
 		if(generateBulletForNeedle){
-			SpaceShipBullet ssb = new SpaceShipBullet(getCurrentXOfSS(), getCurrentYOfSS());
-			gp.sprites.add(ssb);
-			spaceshipBullets.add(ssb);
+			switch (getNumOfNeedle()) {
+			case 1:
+				{
+					BulletSpaceShip ssb = new BulletSpaceShip(getCurrentXOfSS() + v.width / 2, getCurrentYOfSS());
+					gp.sprites.add(ssb);
+					spaceshipBullets.add(ssb);
+				}
+				break;
+			case 2:
+				{
+					BulletSpaceShip ssb = new BulletSpaceShip(getCurrentXOfSS(), getCurrentYOfSS());
+					gp.sprites.add(ssb);
+					spaceshipBullets.add(ssb);
+					BulletSpaceShip ssb2 = new BulletSpaceShip(getCurrentXOfSS() + v.width, getCurrentYOfSS());
+					gp.sprites.add(ssb2);
+					spaceshipBullets.add(ssb2);
+				}
+				break;
+			case 3:
+				{
+					BulletSpaceShip ssb = new BulletSpaceShip(getCurrentXOfSS(), getCurrentYOfSS());
+					gp.sprites.add(ssb);
+					spaceshipBullets.add(ssb);
+					BulletSpaceShip ssb2 = new BulletSpaceShip(getCurrentXOfSS() + v.width / 2, getCurrentYOfSS());
+					gp.sprites.add(ssb2);
+					spaceshipBullets.add(ssb2);
+					BulletSpaceShip ssb3 = new BulletSpaceShip(getCurrentXOfSS() + v.width, getCurrentYOfSS());
+					gp.sprites.add(ssb3);
+					spaceshipBullets.add(ssb3);
+				}
+				break;
+			}
 		}
 	}
+
+	//  Timer for Bullet of Needle  //
+	private Timer timerBulletforNeedle = new Timer(10000, new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				System.out.println("TimeCount = " + timerBulletforNeedle.getDelay());				
+				timerBulletforNeedle.stop();
+				System.out.println("Stop");
+				generateBulletForNeedle = false;
+				numOfNeedle = 0;
+			}
+	});
+
+	public void startCountTime(){	
+		timerBulletforNeedle.start();
+		System.out.println("Start");
+	}
+
 
 	public void die(){
 		timer.stop();
@@ -350,7 +359,7 @@ public class GameEngine implements KeyListener, GameReporter{
 			difficulty += 0.1;
 			break;
 		case KeyEvent.VK_SPACE:
-			generateSpaceShipBullet();
+			generateBulletSpaceShip();
 			break;
 		}
 	}
