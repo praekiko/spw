@@ -44,4 +44,8 @@ public class Enemy extends Sprite{
 		alive = false;
 	}
 
+	public void doWhenCrash(GameEngine ge){
+		ge.heartScore--;
+	}
+
 }

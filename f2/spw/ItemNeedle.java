@@ -11,7 +11,7 @@ public class ItemNeedle extends Item{
 
 	@Override
 	public void draw(Graphics2D g) {
-		g.drawImage(image, x, y, null);
+		g.drawImage(getImage(), x, y, null);
 	}
 
 	@Override

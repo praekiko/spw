@@ -5,15 +5,16 @@ import java.awt.Graphics2D;
 
 public class SpaceShip extends Sprite{
 
-	int step = 8;
+	private int step = 8;
+	private final int resetWidth;
 
-	Color buttonColor = new Color (255, 153, 153);
+	private Color buttonColor = new Color (255, 153, 153);
 	
 	public SpaceShip(int x, int y, int width, int height) {
-		super(x, y, width, height);		
+		super(x, y, width, height);
+		this.resetWidth = width;		
 	}
 
-	int resetWidth = width;
 
 	@Override
 	public void draw(Graphics2D g) {

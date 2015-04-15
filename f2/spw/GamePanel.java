@@ -32,10 +32,6 @@ public class GamePanel extends JPanel {
 		big = (Graphics2D) bi.getGraphics();
 		big.setBackground(backgroundColor);
 
-		bi2 = new BufferedImage(400, 600, BufferedImage.TYPE_INT_ARGB);
-		big2 = (Graphics2D) bi2.getGraphics();
-		big2.setBackground(backgroundColor);
-
 		try {
 			File sourceimage = new File("f2/spw/image/smallredheart.png");
 			heart = ImageIO.read(sourceimage);
@@ -52,7 +48,6 @@ public class GamePanel extends JPanel {
 		big.clearRect(0, 0, 400, 600);
 		// heart image
 		big.drawImage(heart, 325, 9, null);
-		// big.drawImage(needle, 10, 5, null);
 		
 		big.setColor(Color.WHITE);		
 		big.drawString(String.format("%08d", reporter.getScore()), 170, 20);
@@ -78,13 +73,20 @@ public class GamePanel extends JPanel {
 		repaint();
 	}
 
-
-	// must set time -> howlong it will appear!!
-	public void showDamage(GameReporter reporter, int howLong){
+	public void showMessage(String message){
 		
-		big2.clearRect(reporter.getCurrentXOfSS() - 10, reporter.getCurrentYOfSS() - 10, 400, 10);
-		big2.setColor(Color.WHITE);		
-		big2.drawString(String.format("%02d", reporter.getDamage()), reporter.getCurrentXOfSS(), reporter.getCurrentYOfSS());
+		big.clearRect(0, 0, 400, 600);
+		big.setColor(Color.WHITE);		
+		big.drawString(message, 150, 250);
+		
+		repaint();
+	}
+
+	public void showDamage(GameReporter reporter){
+		
+		big.clearRect(reporter.getCurrentXOfSS() - 10, reporter.getCurrentYOfSS() - 10, 50, 10);
+		big.setColor(Color.WHITE);		
+		big.drawString(String.format("%02d", reporter.getDamage()), reporter.getCurrentXOfSS() + 10, reporter.getCurrentYOfSS());
 		
 		repaint();
 	}
@@ -93,7 +95,6 @@ public class GamePanel extends JPanel {
 	public void paint(Graphics g) {
 		Graphics2D g2d = (Graphics2D) g;
 		g2d.drawImage(bi, null, 0, 0);
-		g2d.drawImage(bi2, null, 0, 0);
 	}
 
 }

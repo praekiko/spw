@@ -15,7 +15,7 @@ public abstract class Sprite {
 	int width;
 	int height;
 
-	protected Image image;
+	private Image image;
 	
 	public Sprite(int x, int y, int width, int height) {
 		this.x = x;
@@ -35,6 +35,10 @@ public abstract class Sprite {
 		catch (IOException e) {
          	e.printStackTrace();
         }
+	}
+
+	public Image getImage(){
+		return image;
 	}
 	
 	public Double getRectangle() {

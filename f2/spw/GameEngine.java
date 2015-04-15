@@ -15,7 +15,6 @@ public class GameEngine implements KeyListener, GameReporter{
 	GamePanel gp;
 		
 	private ArrayList<Enemy> enemies = new ArrayList<Enemy>();	
-	private ArrayList<EnemyShootBody> shootEnemies = new ArrayList<EnemyShootBody>();	// EnemyShootBody
 	private ArrayList<BulletEnemy> enemyBullets = new ArrayList<BulletEnemy>(); // BulletEnemy
 	private ArrayList<BulletSpaceShip> spaceshipBullets = new ArrayList<BulletSpaceShip>(); // BulletSpaceShip
 	private ArrayList<Item> items = new ArrayList<Item>(); // Items
@@ -23,14 +22,19 @@ public class GameEngine implements KeyListener, GameReporter{
 	protected SpaceShip v;	
 	
 	private Timer timer;
+	private Timer timerBonusTime;
 	
-	private long score = 0;
+	protected long score = 0;
 	private double difficulty = 0.05;
+	protected long damagePerOneBullet = 10;
 
-	private int heartScore = 5; 	// heart count
+	protected int heartScore = 5; 	// heart count
+	protected int pillCount = 0; // count number of pill in bonus time
 
 	protected boolean generateBulletForNeedle = false;
 	protected int numOfNeedle = 0;
+
+	private boolean healthy = true;
 	
 	public GameEngine(GamePanel gp, SpaceShip v) {
 		this.gp = gp;
@@ -43,35 +47,71 @@ public class GameEngine implements KeyListener, GameReporter{
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				enemyProcess(); // original process
-				enemyShootBodyProcess();
 				itemProcess();
 				bulletProcess();
+				bonusProcess();
 			}
 		});
 		timer.setRepeats(true);
+
+		timerBonusTime = new Timer(10000, new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent arg0) {				
+				healthy = false;  // change map
+				gp.showMessage("Sick Time");
+				System.out.println("Bonus Time");
+			}
+		});
+		// timerBonusTime.setRepeats(true);
 	}
 	
 	public void start(){
 		timer.start();
+		timerBonusTime.start();
 	}
 	
 	// For Enemy
-	private void generateEnemy(){		
-		Enemy e = new Enemy((int)(Math.random()*390), 30);
-		gp.sprites.add(e);
-		enemies.add(e);
-	}
-	// To Generate EnemyShootBody
-	private void generateEnemyShootBody(){
-		EnemyShootBody se = new EnemyShootBody((int)(Math.random()*390), 30);
-		gp.sprites.add(se);
-		shootEnemies.add(se);
-	}
-	// Generate Enemy Bullet
-	private void generateBulletEnemy(int x, int y){
-		BulletEnemy em = new BulletEnemy(x, y);
-		gp.sprites.add(em);
-		enemyBullets.add(em);
+	private void generateEnemy(){	
+		int numOfItems = 2;
+		int randomCase = (int)(Math.random() * (numOfItems + 1));
+		if(healthy){
+			switch (randomCase) {
+			case 1:
+			{
+				Enemy e = new Enemy((int)(Math.random()*390), 30);
+				gp.sprites.add(e);
+				enemies.add(e);
+			}
+			break;
+			case 2:
+			{
+				EnemyShootBody es = new EnemyShootBody((int)(Math.random()*390), 30);
+				gp.sprites.add(es);
+				enemies.add(es);
+			}
+			break;
+			}
+		}
+		else {
+			switch (randomCase) {
+			case 1:
+			{				
+				EnemySickPill esp = new EnemySickPill((int)(Math.random()*390), 30);
+				gp.sprites.add(esp);
+				enemies.add(esp);
+			}
+			break;
+			case 2:
+			{
+				EnemySickPillShoot esps = new EnemySickPillShoot((int)(Math.random()*390), 30);
+				gp.sprites.add(esps);
+				enemies.add(esps);
+			}
+			break;
+			}
+		}
+		
 	}
 
 	// Generate Items all in one
@@ -100,9 +140,17 @@ public class GameEngine implements KeyListener, GameReporter{
 				items.add(in);
 			}
 			break;
+		}		
+	}
+
+	private void bonusProcess(){
+
+
+		if(pillCount == 5){
+			timerBonusTime.stop();
+			healthy = true;
 		}
 
-		
 	}
 	
 	// Original Process
@@ -115,11 +163,18 @@ public class GameEngine implements KeyListener, GameReporter{
 		while(e_iter.hasNext()){
 			Enemy e = e_iter.next();
 			e.proceed();
+			// look up for Enemy that has implements HasBullet?
+			if(e instanceof HasBullet){
+				HasBullet hb = (HasBullet) e;
+				hb.generateBullet(this, e.x, e.y);
+			}
 			
 			if(!e.isAlive()){
 				e_iter.remove();
 				gp.sprites.remove(e);
-				score += 50;
+				if(healthy){
+					score += 50;
+				}
 			}
 		}
 		
@@ -130,7 +185,7 @@ public class GameEngine implements KeyListener, GameReporter{
 		for(Enemy e : enemies){
 			er = e.getRectangle();
 			if(er.intersects(vr)){	
-				heartScore--;			
+				e.doWhenCrash(this);			
 				e.setToDie();
 				System.out.println("Heart = " + heartScore);
 				if(heartScore == 0){
@@ -141,50 +196,9 @@ public class GameEngine implements KeyListener, GameReporter{
 		}
 	}
 
-	// For EnemyShootBody
-	private void enemyShootBodyProcess(){		
-		if(Math.random() < difficulty / 2){
-			generateEnemyShootBody();
-		}
-		
-		Iterator<EnemyShootBody> se_iter = shootEnemies.iterator();
-		while(se_iter.hasNext()){
-			EnemyShootBody se = se_iter.next();
-			se.proceed();
-			generateBulletEnemy(se.x + 7, se.y); // generate Enemy Bullet with each x,y of EnemyShootBody
-
-			if(!se.isAlive()){
-				se_iter.remove();
-				gp.sprites.remove(se);
-				score += 50;
-			}
-
-		}
-		
-		gp.updateGameUI(this);
-		
-		// EnemyShootBody Body when intersect
-		Rectangle2D.Double vrOfse = v.getRectangle();
-		Rectangle2D.Double se;
-		for(EnemyShootBody s : shootEnemies){
-			se = s.getRectangle();
-			if(se.intersects(vrOfse)){		
-				heartScore--;	
-				score -= 50;
-				System.out.println("Heart = " + heartScore);		
-				s.setToDie();
-				if(heartScore == 0){
-					die();
-					return;
-				}
-			}
-		}
-		
-	}
-
 	// For Items
 	private void itemProcess(){		
-		if(Math.random() < difficulty){
+		if((Math.random() < difficulty) && healthy){
 			generateItem();
 		}
 
@@ -245,10 +259,10 @@ public class GameEngine implements KeyListener, GameReporter{
 		for(BulletEnemy e : enemyBullets){
 			em = e.getRectangle();
 			if(em.intersects(vrOfem)){
-				score -= 10;
+				score -= damagePerOneBullet;
 				e.setToDie();	
 				// Show Damage
-				// gp.showDamage(this);					
+				gp.showDamage(this);					
 			}
 		}
 
@@ -266,52 +280,38 @@ public class GameEngine implements KeyListener, GameReporter{
 					e.setToDie();
 					score += 50;
 				}
-			}
-			
-			for(EnemyShootBody se : shootEnemies){
-				vrOfse = se.getRectangle();
-				if(vrOfse.intersects(ssb)){
-					// remove that EnemyShootBody
-					se.setToDie();
-					score += 50;
-				}
-			}
-			
+			}			
 		}
+	}
+
+	// Generate Enemy Bullet
+	protected void generateBulletEnemy(int x, int y){
+		BulletEnemy em = new BulletEnemy(x, y);
+		gp.sprites.add(em);
+		enemyBullets.add(em);
 	}
 
 	// Generate Bullet by intersect Needle Enemy
 	private void generateBulletSpaceShip(){
 		if(generateBulletForNeedle){
 			switch (getNumOfNeedle()) {
-			case 1:
-				{
-					BulletSpaceShip ssb = new BulletSpaceShip(getCurrentXOfSS() + v.width / 2, getCurrentYOfSS());
-					gp.sprites.add(ssb);
-					spaceshipBullets.add(ssb);
-				}
-				break;
-			case 2:
-				{
-					BulletSpaceShip ssb = new BulletSpaceShip(getCurrentXOfSS(), getCurrentYOfSS());
-					gp.sprites.add(ssb);
-					spaceshipBullets.add(ssb);
-					BulletSpaceShip ssb2 = new BulletSpaceShip(getCurrentXOfSS() + v.width, getCurrentYOfSS());
-					gp.sprites.add(ssb2);
-					spaceshipBullets.add(ssb2);
-				}
-				break;
 			case 3:
 				{
 					BulletSpaceShip ssb = new BulletSpaceShip(getCurrentXOfSS(), getCurrentYOfSS());
 					gp.sprites.add(ssb);
 					spaceshipBullets.add(ssb);
-					BulletSpaceShip ssb2 = new BulletSpaceShip(getCurrentXOfSS() + v.width / 2, getCurrentYOfSS());
-					gp.sprites.add(ssb2);
-					spaceshipBullets.add(ssb2);
-					BulletSpaceShip ssb3 = new BulletSpaceShip(getCurrentXOfSS() + v.width, getCurrentYOfSS());
-					gp.sprites.add(ssb3);
-					spaceshipBullets.add(ssb3);
+				}
+			case 2:
+				{
+					BulletSpaceShip ssb = new BulletSpaceShip(getCurrentXOfSS() + v.width, getCurrentYOfSS());
+					gp.sprites.add(ssb);
+					spaceshipBullets.add(ssb);
+				}
+			case 1:
+				{
+					BulletSpaceShip ssb = new BulletSpaceShip(getCurrentXOfSS() + v.width / 2, getCurrentYOfSS());
+					gp.sprites.add(ssb);
+					spaceshipBullets.add(ssb);
 				}
 				break;
 			}
@@ -381,8 +381,8 @@ public class GameEngine implements KeyListener, GameReporter{
 		return v.y;
 	}
 
-	public int getDamage(){
-		return 10;
+	public long getDamage(){
+		return damagePerOneBullet;
 	}
 
 	public int getNumOfNeedle(){
