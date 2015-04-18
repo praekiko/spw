@@ -25,18 +25,22 @@ public class SpaceShip extends Sprite{
 
 	public void moveX(int direction){
 		x += (step * direction);
-		if(x < 0)
+		if(x < 0){
 			x = 0;
-		if(x > 400 - width)
-			x = 400 - width;
+		}
+		if(x > GamePanel.WIDTH - width){
+			x = GamePanel.WIDTH - width;
+		}			
 	}
 
 	public void moveY(int direction){
 		y += (step * direction);
-		if(y < 0)
+		if(y < 0){
 			y = 0;
-		if(y > 580 - width)
-			y = 580 - width;
+		}
+		if(y > GamePanel.HEIGHT - width){
+			y = GamePanel.HEIGHT - width;
+		}
 	}
 
 	public void increaseSize(){

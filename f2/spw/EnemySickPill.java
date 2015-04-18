@@ -19,6 +19,7 @@ public class EnemySickPill extends Enemy{
 	public void doWhenCrash(GameEngine ge){
 		ge.score += 100;
 		ge.pillCount++;
+		System.out.println("Pill = " + ge.pillCount);
 	}
 
 }

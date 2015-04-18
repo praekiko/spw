@@ -9,7 +9,7 @@ public class BulletEnemy extends Sprite{
 	public static final int Y_TO_FADE = 400;
 	public static final int Y_TO_DIE = 600;
 	
-	private int step = 15;
+	private int step = 13;
 	protected boolean alive = true;
 
 	Color enemyColor = new Color (51, 102, 0);

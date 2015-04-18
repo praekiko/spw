@@ -22,19 +22,16 @@ public class GameEngine implements KeyListener, GameReporter{
 	protected SpaceShip v;	
 	
 	private Timer timer;
-	private Timer timerBonusTime;
+	private Timer timerStartBonusTime;
+	protected Timer timerOneSecond; // ItemNeedle use it
 	
 	protected long score = 0;
 	private double difficulty = 0.05;
 	protected long damagePerOneBullet = 10;
 
 	protected int heartScore = 5; 	// heart count
-	protected int pillCount = 0; // count number of pill in bonus time
-
-	protected boolean generateBulletForNeedle = false;
-	protected int numOfNeedle = 0;
-
-	private boolean healthy = true;
+	private boolean healthy = true; // check situation
+	
 	
 	public GameEngine(GamePanel gp, SpaceShip v) {
 		this.gp = gp;
@@ -54,27 +51,50 @@ public class GameEngine implements KeyListener, GameReporter{
 		});
 		timer.setRepeats(true);
 
-		timerBonusTime = new Timer(10000, new ActionListener() {
-			
+		timerStartBonusTime = new Timer(10000, new ActionListener() {
+
 			@Override
-			public void actionPerformed(ActionEvent arg0) {				
-				healthy = false;  // change map
-				gp.showMessage("Sick Time");
-				System.out.println("Bonus Time");
+			public void actionPerformed(ActionEvent arg0) {		
+			    if(healthy == true)	{
+			    	enableBonusTime = true;	  
+			    	timerOneSecond.start(); 
+			    	healthy = false;  // change map
+					gp.setEnableBonusTime(true);
+					// gp.updateGameUI(null);
+					System.out.println("Bonus Time");					
+			    }					
 			}
 		});
-		// timerBonusTime.setRepeats(true);
+		// timerStartBonusTime.setRepeats(true);
+
+		// Timer per one second
+		timerOneSecond = new Timer(1000, new ActionListener() {
+			int count = 0;
+			@Override
+			public void actionPerformed(ActionEvent arg0) {	
+				if(enableBonusTime){
+					countDownBonusTime();
+				}								
+				if(enableTimerForNeedle){
+					// System.out.println("Start Needle Bullet" + ++count);
+					countDownNeedleBullet();
+				}			
+			}
+		});
+		timerOneSecond.setRepeats(true);
 	}
 	
 	public void start(){
 		timer.start();
-		timerBonusTime.start();
+		timerStartBonusTime.start();
 	}
 	
 	// For Enemy
 	private void generateEnemy(){	
 		int numOfItems = 2;
 		int randomCase = (int)(Math.random() * (numOfItems + 1));
+
+
 		if(healthy){
 			switch (randomCase) {
 			case 1:
@@ -143,14 +163,65 @@ public class GameEngine implements KeyListener, GameReporter{
 		}		
 	}
 
+	//////////////// Bonus Time ////////////////////////\
+	protected int pillCount = 0; // count number of pill in bonus time
+	protected int countBonusTime = 20; // 20s
+	private boolean enableBonusTime = false;
+
 	private void bonusProcess(){
-
-
 		if(pillCount == 5){
-			timerBonusTime.stop();
+			timerStartBonusTime.stop();
 			healthy = true;
+			pillCount = 0;
+			gp.setEnableBonusTime(false);
+			gp.updateGameUI(this);
 		}
+	}
 
+	public int getCountBonusTime(){
+		return countBonusTime;
+	}
+
+	public int getPillCount(){
+		return pillCount;
+	}
+
+	private void countDownBonusTime(){
+		countBonusTime--;
+		if(countBonusTime == 0){
+			pillCount = 5;
+			bonusProcess();
+			if(!enableTimerForNeedle){ //check if timer for needle id running?
+				timerOneSecond.stop();
+			}			
+			System.out.println("Out of Time ");					
+		}
+	}
+
+	////////////////// Needle ////////////////////
+	protected int timePerOneNeedle = 0; // 10s/1Needle  +=10 when Needle++
+	protected boolean enableTimerForNeedle = false;
+	protected boolean generateBulletForNeedle = false;
+	protected int numOfNeedle = 0;
+
+	public int getNumOfNeedle(){
+		return numOfNeedle;
+	}
+
+	public int getTimePerOneNeedle(){
+		return  timePerOneNeedle;
+	}	
+
+	private void countDownNeedleBullet(){		
+		timePerOneNeedle--;
+		if(timePerOneNeedle == 0){
+			if(!enableBonusTime){ //check if timer for bonus is running?
+				timerOneSecond.stop();
+			}			
+			System.out.println("Stop Needle Bullet");
+			generateBulletForNeedle = false;
+			numOfNeedle = 0;
+		}
 	}
 	
 	// Original Process
@@ -166,8 +237,10 @@ public class GameEngine implements KeyListener, GameReporter{
 			// look up for Enemy that has implements HasBullet?
 			if(e instanceof HasBullet){
 				HasBullet hb = (HasBullet) e;
-				hb.generateBullet(this, e.x, e.y);
+				hb.generateBullet(this);
 			}
+			// Moving Enemy
+			e.movableEnemyX();
 			
 			if(!e.isAlive()){
 				e_iter.remove();
@@ -223,8 +296,6 @@ public class GameEngine implements KeyListener, GameReporter{
 				i.setToDie();				
 			}
 		}
-
-
 	}
 
 
@@ -286,56 +357,25 @@ public class GameEngine implements KeyListener, GameReporter{
 
 	// Generate Enemy Bullet
 	protected void generateBulletEnemy(int x, int y){
-		BulletEnemy em = new BulletEnemy(x, y);
-		gp.sprites.add(em);
-		enemyBullets.add(em);
+		if((int)(Math.random() * 10) % 5 == 0){
+			BulletEnemy em = new BulletEnemy(x, y);
+			gp.sprites.add(em);
+			enemyBullets.add(em);
+		}		
 	}
 
 	// Generate Bullet by intersect Needle Enemy
 	private void generateBulletSpaceShip(){
 		if(generateBulletForNeedle){
-			switch (getNumOfNeedle()) {
-			case 3:
-				{
-					BulletSpaceShip ssb = new BulletSpaceShip(getCurrentXOfSS(), getCurrentYOfSS());
-					gp.sprites.add(ssb);
-					spaceshipBullets.add(ssb);
-				}
-			case 2:
-				{
-					BulletSpaceShip ssb = new BulletSpaceShip(getCurrentXOfSS() + v.width, getCurrentYOfSS());
-					gp.sprites.add(ssb);
-					spaceshipBullets.add(ssb);
-				}
-			case 1:
-				{
-					BulletSpaceShip ssb = new BulletSpaceShip(getCurrentXOfSS() + v.width / 2, getCurrentYOfSS());
-					gp.sprites.add(ssb);
-					spaceshipBullets.add(ssb);
-				}
-				break;
+			for(int i = 0; i < numOfNeedle; i++){
+				int pos = 2 - i;
+				int offset = pos > 0 ? v.width / pos : 0;
+				BulletSpaceShip ssb = new BulletSpaceShip(getCurrentXOfSS() + offset, getCurrentYOfSS());
+				gp.sprites.add(ssb);
+				spaceshipBullets.add(ssb);
 			}
 		}
 	}
-
-	//  Timer for Bullet of Needle  //
-	private Timer timerBulletforNeedle = new Timer(10000, new ActionListener() {
-			
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				System.out.println("TimeCount = " + timerBulletforNeedle.getDelay());				
-				timerBulletforNeedle.stop();
-				System.out.println("Stop");
-				generateBulletForNeedle = false;
-				numOfNeedle = 0;
-			}
-	});
-
-	public void startCountTime(){	
-		timerBulletforNeedle.start();
-		System.out.println("Start");
-	}
-
 
 	public void die(){
 		timer.stop();
@@ -383,10 +423,6 @@ public class GameEngine implements KeyListener, GameReporter{
 
 	public long getDamage(){
 		return damagePerOneBullet;
-	}
-
-	public int getNumOfNeedle(){
-		return numOfNeedle;
 	}
 	
 	@Override

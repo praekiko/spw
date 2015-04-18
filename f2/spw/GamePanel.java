@@ -15,20 +15,23 @@ import javax.swing.JPanel;
 
 public class GamePanel extends JPanel {
 	
-	private BufferedImage bi;
-	private BufferedImage bi2;	
+	private BufferedImage bi;	
+
+	public static final int WIDTH = 400;
+	public static final int HEIGHT = 600;
 
 	Graphics2D big;
-	Graphics2D big2;
 	ArrayList<Sprite> sprites = new ArrayList<Sprite>();
 
 	Color backgroundColor = new Color (160, 160, 160);
+	Color bonusColor = new Color (64, 64, 64);
 
 	private Image heart;
 	private Image needle;
+	private Image pill;
 
 	public GamePanel() {
-		bi = new BufferedImage(400, 600, BufferedImage.TYPE_INT_ARGB);
+		bi = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_ARGB);
 		big = (Graphics2D) bi.getGraphics();
 		big.setBackground(backgroundColor);
 
@@ -38,6 +41,9 @@ public class GamePanel extends JPanel {
 
 			File sourceimage2 = new File("f2/spw/image/thpinkneedle.gif");
 			needle = ImageIO.read(sourceimage2);
+
+			File sourceimage3 = new File("f2/spw/image/pill.png");
+			pill = ImageIO.read(sourceimage3);
 		}
 		catch (IOException e) {
          	e.printStackTrace();
@@ -50,21 +56,31 @@ public class GamePanel extends JPanel {
 		big.drawImage(heart, 325, 9, null);
 		
 		big.setColor(Color.WHITE);		
+		// if (reporter != null) 
+		big.setBackground(backgroundColor);
 		big.drawString(String.format("%08d", reporter.getScore()), 170, 20);
 		big.drawString(String.format("%01d", reporter.getHeartScore()), 350, 20);
 
-		if(reporter.getNumOfNeedle() == 1) {
-			big.drawImage(needle, 10, 5, null);
+		///////////// Needle
+		for(int i = 0; i < reporter.getNumOfNeedle(); i++){
+			big.drawImage(needle, 10 + (20 * i), 5, null);
+			big.drawString(String.format("%01d", reporter.getTimePerOneNeedle()), 20, 50);
 		}
-		else if (reporter.getNumOfNeedle() == 2) {
-			big.drawImage(needle, 10, 5, null);
-			big.drawImage(needle, 30, 5, null);
+
+		///////////// When enter Sicktime
+		if (isEnableBonusTime) {
+			big.setBackground(bonusColor);
+			if(reporter.getCountBonusTime() > 15){
+				big.drawString("Sick Time", WIDTH / 2, HEIGHT / 2);
+			}
+			else if(reporter.getCountBonusTime() < 15){
+				big.drawString("Collect the PILLS", WIDTH / 2, HEIGHT / 2);
+			}
+			big.drawString(String.format("%01d",reporter.getCountBonusTime()), WIDTH / 2, 320);
+			big.drawImage(pill, WIDTH / 2, 340, null);
+			big.drawString(String.format("%01d", reporter.getPillCount()), WIDTH / 2 + 30, 330);
 		}
-		else if (reporter.getNumOfNeedle() == 3) {
-			big.drawImage(needle, 10, 5, null);
-			big.drawImage(needle, 30, 5, null);
-			big.drawImage(needle, 50, 5, null);
-		}
+			
 		
 		for(Sprite s : sprites){
 			s.draw(big);
@@ -73,20 +89,16 @@ public class GamePanel extends JPanel {
 		repaint();
 	}
 
-	public void showMessage(String message){
-		
-		big.clearRect(0, 0, 400, 600);
-		big.setColor(Color.WHITE);		
-		big.drawString(message, 150, 250);
-		
-		repaint();
+	private boolean isEnableBonusTime = false;
+
+	public void setEnableBonusTime(boolean isEnableBonusTime){
+		this.isEnableBonusTime = isEnableBonusTime;
 	}
 
-	public void showDamage(GameReporter reporter){
-		
+	public void showDamage(GameReporter reporter){		
 		big.clearRect(reporter.getCurrentXOfSS() - 10, reporter.getCurrentYOfSS() - 10, 50, 10);
 		big.setColor(Color.WHITE);		
-		big.drawString(String.format("%02d", reporter.getDamage()), reporter.getCurrentXOfSS() + 10, reporter.getCurrentYOfSS());
+		big.drawString(String.format("%02d", reporter.getDamage()), reporter.getCurrentXOfSS() + 10, reporter.getCurrentYOfSS() - 5);
 		
 		repaint();
 	}

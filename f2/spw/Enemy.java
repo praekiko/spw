@@ -48,4 +48,8 @@ public class Enemy extends Sprite{
 		ge.heartScore--;
 	}
 
+	public void movableEnemyX(){
+
+	}
+
 }
