@@ -28,6 +28,7 @@ public class GamePanel extends JPanel {
 
 	private Image heart;
 	private Image needle;
+	private Image bigNeedle;
 	private Image pill;
 
 	public GamePanel() {
@@ -36,14 +37,12 @@ public class GamePanel extends JPanel {
 		big.setBackground(backgroundColor);
 
 		try {
-			File sourceimage = new File("f2/spw/image/smallredheart.png");
-			heart = ImageIO.read(sourceimage);
+			heart = ImageIO.read(new File("f2/spw/image/smallredheart.png"));
 
-			File sourceimage2 = new File("f2/spw/image/thpinkneedle.gif");
-			needle = ImageIO.read(sourceimage2);
+			needle = ImageIO.read(new File("f2/spw/image/thpinkneedle.gif"));
+			bigNeedle = ImageIO.read(new File("f2/spw/image/bigneedle.gif"));
 
-			File sourceimage3 = new File("f2/spw/image/pill.png");
-			pill = ImageIO.read(sourceimage3);
+			pill = ImageIO.read(new File("f2/spw/image/pill.png"));
 		}
 		catch (IOException e) {
          	e.printStackTrace();
@@ -66,19 +65,27 @@ public class GamePanel extends JPanel {
 			big.drawImage(needle, 10 + (20 * i), 5, null);
 			big.drawString(String.format("%01d", reporter.getTimePerOneNeedle()), 20, 50);
 		}
+		// when needle == 3 -> you got BIGNEEDLE
+		if(reporter.getNumOfNeedle() == 3){
+			if(!(reporter.getEnableGenerateBulletForBigNeedle())){
+				big.drawImage(bigNeedle, 10, 60, 80, 20, null);
+				big.drawString("Press B", 40, 100);
+			}	
+			big.drawString(String.format("%01d", reporter.getTimeForBigNeedle()), 10, 110);		
+		}
 
 		///////////// When enter Sicktime
 		if (isEnableBonusTime) {
 			big.setBackground(bonusColor);
 			if(reporter.getCountBonusTime() > 15){
-				big.drawString("Sick Time", WIDTH / 2, HEIGHT / 2);
+				big.drawString("Sick Time", WIDTH / 2 - 33, HEIGHT / 2);
 			}
 			else if(reporter.getCountBonusTime() < 15){
-				big.drawString("Collect the PILLS", WIDTH / 2, HEIGHT / 2);
+				big.drawString("Collect the PILLS", WIDTH / 2 - 50, HEIGHT / 2);
 			}
-			big.drawString(String.format("%01d",reporter.getCountBonusTime()), WIDTH / 2, 320);
-			big.drawImage(pill, WIDTH / 2, 340, null);
-			big.drawString(String.format("%01d", reporter.getPillCount()), WIDTH / 2 + 30, 330);
+			big.drawString(String.format("%01d",reporter.getCountBonusTime()), WIDTH / 2 - 20, 320);
+			big.drawImage(pill, WIDTH / 2 - 30, 330, null);
+			big.drawString(String.format("%01d", reporter.getPillCount()), WIDTH / 2, 338);
 		}
 			
 		

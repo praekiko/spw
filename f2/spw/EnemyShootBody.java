@@ -4,16 +4,18 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 
 public class EnemyShootBody extends Enemy implements HasBullet{
-	public static final int X_LEFT = 0;
-	public static final int X_RIGHT = 350;
+	public static final int X_LEFT = 50;
+	public static final int X_RIGHT = 300;
 
-	private boolean moveRight = false;
+	private boolean moveLeft = false;
 	private int moveSpeed = 5;
+	private int startX;
 
 	Color enemyColor = new Color (76, 153, 0);
 	
 	public EnemyShootBody(int x, int y) {
 		super(x, y);
+		this.startX = x;
 	}
 
 	@Override
@@ -33,18 +35,18 @@ public class EnemyShootBody extends Enemy implements HasBullet{
 	}
 
 	public void movableEnemyX(){
-		if(x >= X_RIGHT){
-			moveRight = true;
+		if((x >= startX + 100) && (x >= X_RIGHT)){
+			moveLeft = true;
 		}	
-		else if (x <= X_LEFT){
-			moveRight = false;
+		else if (x <= startX){
+			moveLeft = false;
 		}
 
-		if(moveRight){
-			x -= moveSpeed;
+		if(moveLeft){
+			x -= moveSpeed * (int)(Math.sin(0.5 * Math.PI));			
 		}
 		else {
-			x += moveSpeed;
-		}
+			x += moveSpeed * (int)(Math.sin(0.5 * Math.PI));
+		}		
 	}
 }

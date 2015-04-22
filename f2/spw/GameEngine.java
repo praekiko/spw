@@ -47,6 +47,7 @@ public class GameEngine implements KeyListener, GameReporter{
 				itemProcess();
 				bulletProcess();
 				bonusProcess();
+				generateBulletBigNeedle();
 			}
 		});
 		timer.setRepeats(true);
@@ -79,6 +80,9 @@ public class GameEngine implements KeyListener, GameReporter{
 					// System.out.println("Start Needle Bullet" + ++count);
 					countDownNeedleBullet();
 				}			
+				if(enableGenerateBulletForBigNeedle){
+					countDownBigNeedle();
+				}
 			}
 		});
 		timerOneSecond.setRepeats(true);
@@ -99,7 +103,7 @@ public class GameEngine implements KeyListener, GameReporter{
 			switch (randomCase) {
 			case 1:
 			{
-				Enemy e = new Enemy((int)(Math.random()*390), 30);
+				EnemyBody e = new EnemyBody((int)(Math.random()*390), 30);
 				gp.sprites.add(e);
 				enemies.add(e);
 			}
@@ -165,16 +169,20 @@ public class GameEngine implements KeyListener, GameReporter{
 
 	//////////////// Bonus Time ////////////////////////\
 	protected int pillCount = 0; // count number of pill in bonus time
-	protected int countBonusTime = 20; // 20s
+	private final static int countBonusTimeAtStart = 30; // final!!
+	protected int countBonusTime = 30; // 20s
 	private boolean enableBonusTime = false;
 
 	private void bonusProcess(){
 		if(pillCount == 5){
 			timerStartBonusTime.stop();
-			healthy = true;
-			pillCount = 0;
+			healthy = true;  // change map
+			pillCount = 0; // reset
+			countBonusTime = countBonusTimeAtStart;  // reset to start value
 			gp.setEnableBonusTime(false);
 			gp.updateGameUI(this);
+			// start again
+			// timerStartBonusTime.start();
 		}
 	}
 
@@ -189,7 +197,7 @@ public class GameEngine implements KeyListener, GameReporter{
 	private void countDownBonusTime(){
 		countBonusTime--;
 		if(countBonusTime == 0){
-			pillCount = 5;
+			pillCount = 5; // set pill =5
 			bonusProcess();
 			if(!enableTimerForNeedle){ //check if timer for needle id running?
 				timerOneSecond.stop();
@@ -201,7 +209,7 @@ public class GameEngine implements KeyListener, GameReporter{
 	////////////////// Needle ////////////////////
 	protected int timePerOneNeedle = 0; // 10s/1Needle  +=10 when Needle++
 	protected boolean enableTimerForNeedle = false;
-	protected boolean generateBulletForNeedle = false;
+	protected boolean enableGenerateBulletForNeedle = false;
 	protected int numOfNeedle = 0;
 
 	public int getNumOfNeedle(){
@@ -212,19 +220,21 @@ public class GameEngine implements KeyListener, GameReporter{
 		return  timePerOneNeedle;
 	}	
 
-	private void countDownNeedleBullet(){		
-		timePerOneNeedle--;
-		if(timePerOneNeedle == 0){
+	private void countDownNeedleBullet(){
+		if(timePerOneNeedle > 0){
+			timePerOneNeedle--;
+		}				
+		else if(timePerOneNeedle == 0){
 			if(!enableBonusTime){ //check if timer for bonus is running?
 				timerOneSecond.stop();
 			}			
-			System.out.println("Stop Needle Bullet");
-			generateBulletForNeedle = false;
+			// System.out.println("Stop Needle Bullet");
+			enableGenerateBulletForNeedle = false;
 			numOfNeedle = 0;
 		}
 	}
 	
-	// Original Process
+	///////////////// Enemy /////////////////////
 	private void enemyProcess(){
 		if(Math.random() < difficulty){
 			generateEnemy();
@@ -233,7 +243,14 @@ public class GameEngine implements KeyListener, GameReporter{
 		Iterator<Enemy> e_iter = enemies.iterator();
 		while(e_iter.hasNext()){
 			Enemy e = e_iter.next();
-			e.proceed();
+
+			if(!enableGenerateBulletForBigNeedle){
+				e.proceed();
+			}
+			else {
+				e.speedUp();  // when press B
+			}
+
 			// look up for Enemy that has implements HasBullet?
 			if(e instanceof HasBullet){
 				HasBullet hb = (HasBullet) e;
@@ -279,7 +296,15 @@ public class GameEngine implements KeyListener, GameReporter{
 		Iterator<Item> it_iter = items.iterator();
 		while (it_iter.hasNext()) {
 			Item i = it_iter.next();
-			i.proceed();
+			
+			if(!enableGenerateBulletForBigNeedle){
+				i.proceed();
+			}
+			else {
+				i.speedUp();  // when press B
+			}
+
+
 			if (!i.isAlive()) {
 				it_iter.remove();
 				gp.sprites.remove(i);
@@ -304,7 +329,14 @@ public class GameEngine implements KeyListener, GameReporter{
 		Iterator<BulletEnemy> b_iter = enemyBullets.iterator();
 		while (b_iter.hasNext()) {
 			BulletEnemy bl = b_iter.next();
-			bl.proceed();
+			
+			if(!enableGenerateBulletForBigNeedle){
+				bl.proceed();
+			}
+			else {
+				bl.speedUp();  // when press B
+			}
+
 			if (!bl.isAlive()) {
 				b_iter.remove();
 				gp.sprites.remove(bl);
@@ -357,7 +389,7 @@ public class GameEngine implements KeyListener, GameReporter{
 
 	// Generate Enemy Bullet
 	protected void generateBulletEnemy(int x, int y){
-		if((int)(Math.random() * 10) % 5 == 0){
+		if((int)(Math.random() * 11) % 5 == 0){
 			BulletEnemy em = new BulletEnemy(x, y);
 			gp.sprites.add(em);
 			enemyBullets.add(em);
@@ -366,7 +398,7 @@ public class GameEngine implements KeyListener, GameReporter{
 
 	// Generate Bullet by intersect Needle Enemy
 	private void generateBulletSpaceShip(){
-		if(generateBulletForNeedle){
+		if(enableGenerateBulletForNeedle){
 			for(int i = 0; i < numOfNeedle; i++){
 				int pos = 2 - i;
 				int offset = pos > 0 ? v.width / pos : 0;
@@ -376,6 +408,42 @@ public class GameEngine implements KeyListener, GameReporter{
 			}
 		}
 	}
+
+
+	///////////////// Speed Up////////////////////
+	private boolean enableGenerateBulletForBigNeedle = false;  //press B to enable
+	private int timeForBigNeedle = 20;
+
+	private void countDownBigNeedle(){
+		timeForBigNeedle--;
+		if(timeForBigNeedle == 0){
+			enableGenerateBulletForBigNeedle = false;
+			if(!enableTimerForNeedle){ //check if timer for needle id running?
+				timerOneSecond.stop();
+			}							
+		}
+	}
+
+	public boolean getEnableGenerateBulletForBigNeedle(){
+		return enableGenerateBulletForBigNeedle;
+	}
+
+	public int getTimeForBigNeedle(){
+		return timeForBigNeedle;
+	}
+
+	private void generateBulletBigNeedle(){
+		if(enableGenerateBulletForBigNeedle){
+			for(int i = 0; i < 5; i++){  
+				int pos = 2 - i;
+				int offset = pos > 0 ? v.width / pos : 0;
+				BulletSpaceShip ssb = new BulletSpaceShip(getCurrentXOfSS() + offset, getCurrentYOfSS());
+				gp.sprites.add(ssb);
+				spaceshipBullets.add(ssb);
+			}
+		}
+	}
+
 
 	public void die(){
 		timer.stop();
@@ -400,6 +468,10 @@ public class GameEngine implements KeyListener, GameReporter{
 			break;
 		case KeyEvent.VK_SPACE:
 			generateBulletSpaceShip();
+			break;
+		case KeyEvent.VK_B:
+			enableGenerateBulletForBigNeedle = !enableGenerateBulletForBigNeedle;
+			timerOneSecond.start();
 			break;
 		}
 	}

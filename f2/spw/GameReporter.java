@@ -16,4 +16,6 @@ public interface GameReporter {
 	int getCountBonusTime();
 	int getPillCount();
 
+	boolean getEnableGenerateBulletForBigNeedle();
+	int getTimeForBigNeedle();
 }

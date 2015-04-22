@@ -16,7 +16,7 @@ public class ItemNeedle extends Item{
 
 	@Override
 	public void	doWhenCollect(GameEngine ge){
-		ge.generateBulletForNeedle = true;  // Enable to generate
+		ge.enableGenerateBulletForNeedle = true;  // Enable to generate
 		ge.enableTimerForNeedle = true; // enable timer
 		ge.timerOneSecond.start();
 		if(ge.numOfNeedle < 3){ 	// Max at 3

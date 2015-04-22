@@ -14,7 +14,7 @@ public class ItemToSmaller extends Item{
 	@Override
 	public void draw(Graphics2D g) {
 		g.setColor(enemyColor);
-		g.fillRoundRect(x, y, 20, 20, 5, 5);
+		g.fillRoundRect(x, y, 20, 8, 5, 5);
 	}
 
 	@Override

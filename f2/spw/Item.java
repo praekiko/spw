@@ -29,6 +29,11 @@ public abstract class Item extends Sprite{
 			alive = false;
 		}
 	}
+
+	// when press B
+	public void speedUp(){
+		y += 2 * step;
+	}
 	
 	public boolean isAlive(){
 		return alive;

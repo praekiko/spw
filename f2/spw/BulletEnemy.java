@@ -31,6 +31,11 @@ public class BulletEnemy extends Sprite{
 			alive = false;
 		}
 	}
+
+	// when press B
+	public void speedUp(){
+		y += 4 * step;
+	}
 	
 	public boolean isAlive(){
 		return alive;

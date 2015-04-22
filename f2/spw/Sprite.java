@@ -40,6 +40,11 @@ public abstract class Sprite {
 	public Image getImage(){
 		return image;
 	}
+
+	// step++
+	public void speedUp(){
+
+	}
 	
 	public Double getRectangle() {
 		return new Rectangle2D.Double(x, y, width, height);

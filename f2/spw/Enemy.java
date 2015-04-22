@@ -4,14 +4,12 @@ import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Graphics2D;
 
-public class Enemy extends Sprite{
+public abstract class Enemy extends Sprite{
 	public static final int Y_TO_FADE = 400;
 	public static final int Y_TO_DIE = 600;
 	
 	protected int step = 11; // that Bullet can modify it
 	protected boolean alive = true; // when intersect in GameEngine -> they can modify
-
-	Color enemyColor = new Color (110, 218, 83);
 	
 	public Enemy(int x, int y) {
 		super(x, y, 10, 20);		
@@ -25,8 +23,6 @@ public class Enemy extends Sprite{
 		// 	g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 
 		// 			(float)(Y_TO_DIE - y)/(Y_TO_DIE - Y_TO_FADE)));
 		// }
-		g.setColor(enemyColor);
-		g.fillRoundRect(x, y, width, height, 5, 5);
 	}
 
 	public void proceed(){
@@ -34,6 +30,11 @@ public class Enemy extends Sprite{
 		if(y > Y_TO_DIE){
 			alive = false;
 		}
+	}
+
+	// when press B
+	public void speedUp(){
+		y += 2 * step;
 	}
 	
 	public boolean isAlive(){
@@ -44,12 +45,10 @@ public class Enemy extends Sprite{
 		alive = false;
 	}
 
-	public void doWhenCrash(GameEngine ge){
-		ge.heartScore--;
-	}
+	public abstract void doWhenCrash(GameEngine ge);
 
 	public void movableEnemyX(){
-
+		
 	}
 
 }
