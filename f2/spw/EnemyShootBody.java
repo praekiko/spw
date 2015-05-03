@@ -11,7 +11,8 @@ public class EnemyShootBody extends Enemy implements HasBullet{
 	private int moveSpeed = 5;
 	private int startX;
 
-	Color enemyColor = new Color (76, 153, 0);
+
+	Color enemyColor = new Color (32, 32, 32);
 	
 	public EnemyShootBody(int x, int y) {
 		super(x, y);
@@ -26,7 +27,12 @@ public class EnemyShootBody extends Enemy implements HasBullet{
 
 	// Override generateBullet in HasBullet 
 	public void generateBullet(GameEngine ge){
-		ge.generateBulletEnemy(x + 7, y);
+		// ge.generateBulletEnemy(x + 7, y);
+		if((int)(Math.random() * 11) % 9 == 0){
+			BulletEnemy em = new BulletEnemy(x + 7, y);
+			ge.gp.sprites.add(em);
+			ge.enemyBullets.add(em);
+		}		
 		
 	}
 

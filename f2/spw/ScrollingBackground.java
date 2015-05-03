@@ -9,10 +9,10 @@ import java.awt.image.BufferedImage;
 public class ScrollingBackground extends Canvas implements Runnable {
  
     // Two copies of the background image to scroll
-    private Background bgOne;
-    private Background bgTwo;
+    protected Background bgOne;
+    protected Background bgTwo;
  
-    private BufferedImage bg;
+    protected BufferedImage bg;
  
     public ScrollingBackground() {
         bgOne = new Background();
@@ -33,28 +33,9 @@ public class ScrollingBackground extends Canvas implements Runnable {
         catch (Exception e) {}
     }
  
-    @Override
-    public void update(Graphics gp) {
-        paint(gp);
-    }
- 
-    public void paint(Graphics gp) {
-        Graphics2D g = (Graphics2D)gp;
- 
-        if (bg == null){
-            bg = (BufferedImage)(createImage(getWidth(), getHeight()));
-        }
-            
-        // Create a buffer to draw to
-        Graphics buffer = bg.createGraphics();
- 
-        // Put the two copies of the background image onto the buffer
-        bgOne.draw(buffer);
-        bgTwo.draw(buffer);
- 
-        // Draw the image onto the window
-        g.drawImage(bg, null, 0, 0);
- 
-    }
+   
+    public void update(Graphics g, GamePanel gp) {
+        gp.paint(g);
+    }            
  
 }

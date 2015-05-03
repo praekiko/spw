@@ -12,7 +12,8 @@ public class BulletEnemy extends Sprite{
 	private int step = 13;
 	protected boolean alive = true;
 
-	Color enemyColor = new Color (51, 102, 0);
+	// Color enemyColor = new Color (51, 102, 0);
+	Color enemyColor = new Color (32, 32, 32);
 	
 	public BulletEnemy(int x, int y) {
 		super(x, y, 5, 10);

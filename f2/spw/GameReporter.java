@@ -5,17 +5,20 @@ public interface GameReporter {
 	long getScore();
 	int getHeartScore();
 
-	int getNumOfNeedle();
-	int getTimePerOneNeedle();
+	// int getNumOfNeedle();
+	// int getTimePerOneNeedle();
 
 	// get Current X,Y axis of spaceship
 	int getCurrentXOfSS();
 	int getCurrentYOfSS();
 	long getDamage();
 
-	int getCountBonusTime();
-	int getPillCount();
+	//is Game Over?
+	boolean isGameOver();
 
-	boolean getEnableGenerateBulletForBigNeedle();
-	int getTimeForBigNeedle();
+	// int getCountBonusTime();
+	// int getPillCount();
+
+	// boolean getEnableGenerateBulletForBigNeedle();
+	// int getTimeForBigNeedle();
 }

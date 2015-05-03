@@ -16,17 +16,17 @@ public class ItemNeedle extends Item{
 
 	@Override
 	public void	doWhenCollect(GameEngine ge){
-		ge.enableGenerateBulletForNeedle = true;  // Enable to generate
-		ge.enableTimerForNeedle = true; // enable timer
-		ge.timerOneSecond.start();
-		if(ge.numOfNeedle < 3){ 	// Max at 3
-			ge.numOfNeedle++;
-			ge.timePerOneNeedle += 10;	
+		ge.ability.enableGenerateBulletForNeedle = true;  // Enable to generate
+		ge.ability.enableTimerForNeedle = true; // enable timer
+		ge.ability.timerOneSecond.start();
+		if(ge.ability.numOfNeedle < 3){ 	// Max at 3
+			ge.ability.numOfNeedle++;
+			ge.ability.timePerOneNeedle += 10;	
 		}
 		else {
-			ge.numOfNeedle = 3;
+			ge.ability.numOfNeedle = 3;
 		}
-		System.out.println("Needle = " + ge.numOfNeedle);
+		System.out.println("Needle = " + ge.ability.numOfNeedle);
 	}
 
 

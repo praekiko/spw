@@ -5,22 +5,23 @@ import java.awt.Graphics2D;
 
 public class SpaceShip extends Sprite{
 
-	private int step = 8;
+	private int step = 10;
 	private final int resetWidth;
 
 	private Color buttonColor = new Color (255, 153, 153);
 	
 	public SpaceShip(int x, int y, int width, int height) {
 		super(x, y, width, height);
-		this.resetWidth = width;		
+		this.resetWidth = width;
+		super.setImage("f2/spw/image/ch3.gif");		
 	}
 
 
 	@Override
 	public void draw(Graphics2D g) {
-		g.setColor(buttonColor);
-		g.fillRect(x, y, width, height);
-		
+	// 	g.setColor(buttonColor);
+	// 	g.fillRect(x, y, width, height);
+		g.drawImage(getImage(), x, y, width, height, null);
 	}
 
 	public void moveX(int direction){

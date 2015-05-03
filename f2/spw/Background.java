@@ -10,6 +10,7 @@ public class Background {
  
     private int x;
     private int y;
+    private int step = 3;
  
     public Background() {
         this(0,0);
@@ -21,7 +22,7 @@ public class Background {
  
         // Try to open the image file background.png
         try {
-            image = ImageIO.read(new File("f2/spw/image/bg1.jpg"));
+            image = ImageIO.read(new File("f2/spw/image/bggg.png"));
         }
         catch (Exception e) { 
             System.out.println(e); 
@@ -35,7 +36,8 @@ public class Background {
         window.drawImage(image, getX(), getY(), image.getWidth(), image.getHeight(), null);
  
         // Move the y position left for next time
-        this.y += 1;
+        // this.y += step;
+        moveDownWithY();
  
         // Check to see if the image has gone off stage left
         if (this.y >= +1 * image.getHeight()) {
@@ -45,6 +47,18 @@ public class Background {
             this.y = this.y - image.getHeight() * 2;
         }
  
+    }
+
+    public void stepUp(){
+        step = step * 4;
+    }
+
+    public void stepDown(){
+        step = 3;
+    }
+
+    public void moveDownWithY(){
+        y += step;
     }
  
     public void setY(int y) {
